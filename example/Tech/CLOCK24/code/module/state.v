@@ -1,10 +1,13 @@
-module STATE(CLK, RST, SIG2HZ, MODE, SELECT, ADJUST, SECCLR, MININC, HOURINC, SECON, MINON, HOURON);
+module STATE(CLK, RST, SIG2HZ, HOUR1, HOUR2, MODE, SELECT, ADJUST, 
+	SECCLR, MININC, HOURINC, SECON, MINON, HOURON1, HOURON10);
 
 	input CLK, RST;
 	input SIG2HZ;
+	input [3:0] HOUR1;
+	input [1:0] HOUR2;
 	input MODE, SELECT, ADJUST;
 	output SECCLR, MININC, HOURINC;
-	output SECON, MINON, HOURON;
+	output SECON, MINON, HOURON1, HOURON10;
 
 	reg [1:0] stateCur, stateNxt;
 	parameter NORM=2'b00, SEC=2'b01, MIN=2'b10, HOUR=2'b11;
@@ -15,7 +18,8 @@ module STATE(CLK, RST, SIG2HZ, MODE, SELECT, ADJUST, SECCLR, MININC, HOURINC, SE
 	
 	assign SECON = ~((stateCur==SEC) & SIG2HZ);
 	assign MINON = ~((stateCur==MIN) & SIG2HZ);
-	assign HOURON = ~((stateCur==HOUR) & SIG2HZ);
+	assign HOURON1 = ~((stateCur==HOUR) & SIG2HZ);
+	assign HOURON10 = ~(((stateCur==HOUR) & SIG2HZ) | ((stateCur==NORM) & (HOUR1<10) & (HOUR2<1)));
 
 	always @(posedge CLK, posedge RST) begin
 		if (RST)
